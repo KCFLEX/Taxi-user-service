@@ -2,52 +2,65 @@ package handlers
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/KCFLEX/Taxi-user-service/internal/config"
 	"github.com/KCFLEX/Taxi-user-service/internal/handlers/models"
 	"github.com/gin-gonic/gin"
 )
 
 type Service interface {
-	SignUP(ctx context.Context, User *models.SignUPInfo) error
+	SignUP(ctx context.Context, User models.UserInfo) error
 }
 
 type Handler struct {
+	srv    Service
 	router *gin.Engine
+	port   string
 }
 
-func New() *Handler {
+func New(config config.Config, srv Service) *Handler {
 	router := gin.Default()
 	return &Handler{
+		srv:    srv,
 		router: router,
+		port:   config.Port,
 	}
+}
+
+func (h *Handler) RegisterRoutes() {
+
+	h.router.Use(gin.Recovery())
+	h.router.POST("/signup", h.SignUP)
+}
+
+func (h *Handler) Serve() error {
+
+	h.RegisterRoutes()
+	return h.router.Run(":" + h.port)
+}
+
+type SignINInfo struct {
 }
 
 func (h *Handler) SignUP(ctx *gin.Context) {
 
-	var User models.SignUPInfo
+	var User models.UserInfo
 
 	err := ctx.ShouldBind(&User)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	// form validation
-	errors := User.Required()
 
-	if len(errors) > 0 {
-		for field, message := range errors {
-			fmt.Fprintf(ctx.Writer, "error in %s: %s\n", field, message)
-			return
-		}
-	}
-
-	if !User.Validate() {
-		fmt.Fprint(ctx.Writer, User.Errors)
+	err = h.srv.SignUP(ctx, User)
+	if err != nil {
+		log.Printf("failed to signUP user: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusCreated, User)
+	ctx.IndentedJSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 
 }

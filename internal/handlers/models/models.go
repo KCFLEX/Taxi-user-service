@@ -3,6 +3,9 @@ package models
 import (
 	"regexp"
 	"strings"
+
+	"github.com/KCFLEX/Taxi-user-service/errorpac"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -10,50 +13,56 @@ var (
 	phoneRegex = regexp.MustCompile(`^\+?\d{1,3}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$`)
 )
 
-type errors map[string]string
-
-type SignUPInfo struct {
+type UserInfo struct {
 	Name     string `json:"name"`
 	PhoneNO  string `json:"phone"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Errors   map[string]string
 }
 
-func (s *SignUPInfo) Validate() bool {
-	s.Errors = make(errors)
+func (s *UserInfo) Validate() error {
 	if !emailRegex.MatchString(s.Email) {
-		s.Errors["email"] = "please enter valid email"
+		return errorpac.ErrInvalidEmail
 	}
 	if !phoneRegex.MatchString(s.PhoneNO) {
-		s.Errors["phone"] = "please insert valid phone number"
+		return errorpac.ErrInvaiidPhone
 	}
-
-	return len(s.Errors) == 0
+	return nil
 }
 
-func (s *SignUPInfo) Required() errors {
-	s.Errors = make(errors)
+func (s *UserInfo) Required() error {
 
 	if strings.TrimSpace(s.Name) == "" {
-		s.Errors["name"] = "Name is required"
+		return errorpac.ErrNameRequired
 	}
 
 	// Check if PhoneNO is empty
 	if strings.TrimSpace(s.PhoneNO) == "" {
-		s.Errors["phone"] = "Phone number is required"
+		return errorpac.ErrInvaiidPhone
 	}
 
 	// Check if Email is empty
 	if strings.TrimSpace(s.Email) == "" {
-		s.Errors["email"] = "Email is required"
+		return errorpac.ErrInvalidEmail
 	}
 
 	// Check if Password is empty
 	if strings.TrimSpace(s.Password) == "" {
-		s.Errors["password"] = "Password is required"
+		return errorpac.ErrPasswordRequired
 	}
 
-	return s.Errors
+	return nil
 
+}
+
+func HashPass(password string) ([]byte, error) {
+	passwordEncode, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return []byte{}, &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrPassHashFail,
+		}
+	}
+
+	return passwordEncode, nil
 }
