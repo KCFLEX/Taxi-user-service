@@ -6,13 +6,14 @@ import (
 )
 
 var (
-	ErrPassHashFail     = errors.New("error generating password hash")
-	ErrCreateUserFail   = errors.New("error creating user")
-	ErrInvalidEmail     = errors.New("invalid email format")
-	ErrInvaiidPhone     = errors.New("invalid phone format")
-	ErrNameRequired     = errors.New("name is required")
-	ErrPasswordRequired = errors.New("password is required")
-	ErrDuplicateEmail   = errors.New("email already exists")
+	ErrPassHashFail      = errors.New("error generating password hash")
+	ErrCreateUserFail    = errors.New("error creating user")
+	ErrInvalidEmail      = errors.New("invalid email format")
+	ErrInvaiidPhone      = errors.New("invalid phone format")
+	ErrNameRequired      = errors.New("name is required")
+	ErrPasswordRequired  = errors.New("password is required")
+	ErrDuplicateEmail    = errors.New("email already exists")
+	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
 type CustomErr struct {
