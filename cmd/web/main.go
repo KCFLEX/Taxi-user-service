@@ -7,6 +7,7 @@ import (
 	"github.com/KCFLEX/Taxi-user-service/internal/handlers"
 	"github.com/KCFLEX/Taxi-user-service/internal/repository"
 	services "github.com/KCFLEX/Taxi-user-service/internal/service"
+	tokenservice "github.com/KCFLEX/Taxi-user-service/internal/service/tokenService"
 )
 
 func main() {
@@ -20,8 +21,8 @@ func main() {
 		log.Panic(err)
 	}
 	defer repo.Close()
-
-	srv := services.New(repo)
+	token := tokenservice.New(config)
+	srv := services.New(repo, token)
 
 	Handler := handlers.New(config, srv)
 	Handler.Serve()

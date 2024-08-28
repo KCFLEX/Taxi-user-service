@@ -14,6 +14,9 @@ var (
 	ErrPasswordRequired  = errors.New("password is required")
 	ErrDuplicateEmail    = errors.New("email already exists")
 	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserDoesNotExist  = errors.New("user does not exist")
+	ErrPasswordInvalid   = errors.New("invalid password")
+	ErrTokenGenFail      = errors.New("token generation failed")
 )
 
 type CustomErr struct {

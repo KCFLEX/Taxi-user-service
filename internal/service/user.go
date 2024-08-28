@@ -2,31 +2,40 @@ package services
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"github.com/KCFLEX/Taxi-user-service/errorpac"
 	"github.com/KCFLEX/Taxi-user-service/internal/handlers/models"
 	"github.com/KCFLEX/Taxi-user-service/internal/repository/entity"
+	"golang.org/x/crypto/bcrypt"
 )
+
+type Token interface {
+	GenerateToken(ctx context.Context, userID string, duration time.Duration) (string, error)
+}
 
 type Repository interface {
 	UserExists(ctx context.Context, user entity.User) (bool, error)
 	CreateUser(ctx context.Context, user entity.User) error
+	UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error)
 }
 
 // remember you were doing transformation transforming models.UserInfo to entity.User
 type Service struct {
-	repo Repository
+	repo  Repository
+	token Token
 }
 
-func New(repo Repository) *Service {
+func New(repo Repository, token Token) *Service {
 	return &Service{
-		repo: repo,
+		repo:  repo,
+		token: token,
 	}
 }
 
 func (srv *Service) SignUP(ctx context.Context, User models.UserInfo) error {
 	// next we do sessions and tokens
-	// check if email exists already
 	err := User.Required()
 	if err != nil {
 		return err
@@ -68,4 +77,36 @@ func (srv *Service) SignUP(ctx context.Context, User models.UserInfo) error {
 	}
 
 	return nil
+}
+
+func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, error) {
+
+	checkUser := entity.User{
+		Phone: user.PhoneNO,
+	}
+
+	userId, err := srv.repo.UserPhoneExists(ctx, checkUser)
+	if err != nil {
+		return "", err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(userId.Password), []byte(user.Password))
+	if err != nil {
+		return "", errorpac.ErrPasswordInvalid
+	}
+
+	userIdStr := strconv.Itoa(userId.ID)
+
+	// generate token and return token
+	tokenStr, err := srv.token.GenerateToken(ctx, userIdStr, 24*time.Hour)
+
+	if err != nil {
+		return "", &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrTokenGenFail,
+		}
+	}
+
+	return tokenStr, nil
+
 }

@@ -80,3 +80,27 @@ func (repo *Repository) CreateUser(ctx context.Context, user entity.User) error 
 	}
 	return nil
 }
+
+// method to check if user email exists
+// if it does return password
+func (repo *Repository) UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error) {
+	query := `SELECT password, id FROM users WHERE phone = $1`
+
+	var id int
+	var password string
+
+	err := repo.db.QueryRowContext(ctx, query, user.Phone).Scan(&password, &id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return entity.User{}, &errorpac.CustomErr{
+				OriginalErr: err,
+				SpecificErr: errorpac.ErrUserDoesNotExist,
+			}
+		}
+	}
+
+	return entity.User{
+		ID:       id,
+		Password: password,
+	}, nil
+}

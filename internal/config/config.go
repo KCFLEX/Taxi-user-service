@@ -3,9 +3,10 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	Port   string `mapstructure:"HTTP_PORT"`
-	Host   string `mapstructure:"HOST"`
-	DbConn string `mapstructure:"CONN_STRING"`
+	Port      string `mapstructure:"HTTP_PORT"`
+	Host      string `mapstructure:"HOST"`
+	DbConn    string `mapstructure:"CONN_STRING"`
+	SecretKey string `mapstructure:"JWT_SECRET_KEY"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
