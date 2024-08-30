@@ -7,6 +7,7 @@ type Config struct {
 	Host      string `mapstructure:"HOST"`
 	DbConn    string `mapstructure:"CONN_STRING"`
 	SecretKey string `mapstructure:"JWT_SECRET_KEY"`
+	RedisConn string `mapstructure:"REDIS_CONN"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

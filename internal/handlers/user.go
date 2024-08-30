@@ -38,6 +38,7 @@ func (h *Handler) RegisterRoutes() {
 	h.router.Use(gin.Recovery())
 	h.router.POST("/signup", h.SignUP)
 	h.router.POST("/signin", h.SignIN)
+	h.router.POST("/logout", h.LogOut)
 }
 
 func (h *Handler) Serve() error {
@@ -111,4 +112,20 @@ func (h *Handler) SignIN(ctx *gin.Context) {
 
 	http.SetCookie(ctx.Writer, &cookie)
 	ctx.IndentedJSON(http.StatusOK, gin.H{"message": "user successfully authorized"})
+}
+
+func (h *Handler) LogOut(ctx *gin.Context) {
+	cookie := &http.Cookie{
+		Name:     "auth_token",         // The name of the cookie to clear
+		Value:    "",                   // Empty value for clearing
+		Path:     "/",                  // Path must match the original cookie's Path
+		MaxAge:   -1,                   // Negative MaxAge deletes the cookie
+		HttpOnly: true,                 // Same HttpOnly setting as the original cookie
+		Secure:   true,                 // Same Secure setting as the original cookie
+		SameSite: http.SameSiteLaxMode, // Same SameSite setting as the original cookie
+	}
+
+	http.SetCookie(ctx.Writer, cookie)
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }

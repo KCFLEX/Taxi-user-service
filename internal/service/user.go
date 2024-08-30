@@ -2,23 +2,28 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/KCFLEX/Taxi-user-service/errorpac"
 	"github.com/KCFLEX/Taxi-user-service/internal/handlers/models"
 	"github.com/KCFLEX/Taxi-user-service/internal/repository/entity"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Token interface {
 	GenerateToken(ctx context.Context, userID string, duration time.Duration) (string, error)
+	ValidateToken(ctx context.Context, tokenString string) error
 }
 
 type Repository interface {
 	UserExists(ctx context.Context, user entity.User) (bool, error)
 	CreateUser(ctx context.Context, user entity.User) error
 	UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error)
+	StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error //store token in redis
+	// redis method for jwt token validation
 }
 
 // remember you were doing transformation transforming models.UserInfo to entity.User
@@ -96,7 +101,7 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 	}
 
 	userIdStr := strconv.Itoa(userId.ID)
-
+	fmt.Println(userIdStr)
 	// generate token and return token
 	tokenStr, err := srv.token.GenerateToken(ctx, userIdStr, 24*time.Hour)
 
@@ -104,6 +109,15 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 		return "", &errorpac.CustomErr{
 			OriginalErr: err,
 			SpecificErr: errorpac.ErrTokenGenFail,
+		}
+	}
+
+	// store token in redis
+	err = srv.repo.StoreTokenInRedis(ctx, userIdStr, tokenStr, 24*time.Hour)
+	if err != nil {
+		return "", &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrFailToStoreToken,
 		}
 	}
 

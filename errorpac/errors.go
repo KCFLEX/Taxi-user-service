@@ -17,6 +17,8 @@ var (
 	ErrUserDoesNotExist  = errors.New("user does not exist")
 	ErrPasswordInvalid   = errors.New("invalid password")
 	ErrTokenGenFail      = errors.New("token generation failed")
+	ErrInvaiidToken      = errors.New("invalid token")
+	ErrFailToStoreToken  = errors.New("failed to store token in redis")
 )
 
 type CustomErr struct {

@@ -7,7 +7,7 @@ import (
 	"github.com/KCFLEX/Taxi-user-service/internal/handlers"
 	"github.com/KCFLEX/Taxi-user-service/internal/repository"
 	services "github.com/KCFLEX/Taxi-user-service/internal/service"
-	tokenservice "github.com/KCFLEX/Taxi-user-service/internal/service/tokenService"
+	tokenservice "github.com/KCFLEX/Taxi-user-service/internal/service/token_Service"
 )
 
 func main() {
@@ -21,6 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 	defer repo.Close()
+	defer repo.CloseRedis()
 	token := tokenservice.New(config)
 	srv := services.New(repo, token)
 

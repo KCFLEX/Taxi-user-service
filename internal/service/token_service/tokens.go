@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/KCFLEX/Taxi-user-service/errorpac"
 	"github.com/KCFLEX/Taxi-user-service/internal/config"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -38,4 +39,20 @@ func (t *Token) GenerateToken(ctx context.Context, userID string, duration time.
 
 	return tokenStr, err
 
+}
+
+func (t *Token) ValidateToken(ctx context.Context, tokenString string) error {
+	token, err := jwt.Parse(tokenString, func(tt *jwt.Token) (interface{}, error) {
+		return t.SecretKey, nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if !token.Valid {
+		return errorpac.ErrInvaiidToken
+	}
+
+	return nil
 }

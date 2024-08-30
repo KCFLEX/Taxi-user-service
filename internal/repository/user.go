@@ -4,15 +4,35 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/KCFLEX/Taxi-user-service/errorpac"
 	"github.com/KCFLEX/Taxi-user-service/internal/config"
 	"github.com/KCFLEX/Taxi-user-service/internal/repository/entity"
 	"github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 )
 
 type Repository struct {
-	db *sql.DB
+	db      *sql.DB
+	redisDB *redis.Client
+}
+
+func RedisConn(conn string) (*redis.Client, error) {
+	db, err := redis.ParseURL(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	client := redis.NewClient(db)
+
+	// Test the Redis connection
+	_, err = client.Ping(context.Background()).Result()
+	if err != nil {
+		return nil, errors.New("failed to connect to redis ")
+	}
+
+	return client, nil
 }
 
 func DbConnect(conn string) (*sql.DB, error) {
@@ -34,13 +54,24 @@ func New(config config.Config) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	redisDB, err := RedisConn(config.RedisConn)
+	if err != nil {
+		return nil, err
+	}
 	return &Repository{
-		db: db,
+		db:      db,
+		redisDB: redisDB,
 	}, nil
+
 }
 
 func (repo *Repository) Close() error {
 	return repo.db.Close()
+}
+
+func (repo *Repository) CloseRedis() error {
+	return repo.redisDB.Close()
 }
 
 // method to check if user exists already
@@ -103,4 +134,14 @@ func (repo *Repository) UserPhoneExists(ctx context.Context, user entity.User) (
 		ID:       id,
 		Password: password,
 	}, nil
+}
+
+func (repo *Repository) StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error {
+	err := repo.redisDB.Set(ctx, "auth:"+userID, token, expiration).Err()
+
+	if err != nil {
+		return errors.New("failed to store token in redis")
+	}
+
+	return nil
 }
