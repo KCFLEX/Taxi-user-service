@@ -16,6 +16,8 @@ import (
 type Service interface {
 	SignUP(ctx context.Context, User models.UserInfo) error
 	SignIN(ctx context.Context, user models.UserInfo) (string, error)
+	VerifyToken(ctx context.Context, token string) (string, error)
+	CheckTokenInRedis(ctx context.Context, token string) error
 }
 
 type Handler struct {
@@ -38,7 +40,12 @@ func (h *Handler) RegisterRoutes() {
 	h.router.Use(gin.Recovery())
 	h.router.POST("/signup", h.SignUP)
 	h.router.POST("/signin", h.SignIN)
+
+	h.router.Use(h.AuthMiddleWare)
+
+	// Now all routes defined after this line will be protected
 	h.router.POST("/logout", h.LogOut)
+	h.router.GET("/profile", h.Profile) //
 }
 
 func (h *Handler) Serve() error {
@@ -98,7 +105,7 @@ func (h *Handler) SignIN(ctx *gin.Context) {
 		}
 		return
 	}
-	fmt.Println("this is the token", tokenStr)
+	//fmt.Println("this is the token", tokenStr)
 	// stores token in cookies
 	cookie := http.Cookie{
 		Name:     "auth_token",
@@ -124,8 +131,44 @@ func (h *Handler) LogOut(ctx *gin.Context) {
 		Secure:   true,                 // Same Secure setting as the original cookie
 		SameSite: http.SameSiteLaxMode, // Same SameSite setting as the original cookie
 	}
-
+	fmt.Println("------logout")
 	http.SetCookie(ctx.Writer, cookie)
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+}
+
+func (h *Handler) AuthMiddleWare(ctx *gin.Context) {
+	// Retrieve the token from the cookie
+	tokenStr, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
+		return
+	}
+	fmt.Println("-------")
+	fmt.Print(tokenStr)
+
+	//verify token
+	_, err = h.srv.VerifyToken(ctx, tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
+		ctx.Abort()
+		return
+	}
+
+	fmt.Println("-------")
+	err = h.srv.CheckTokenInRedis(ctx, tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		ctx.Abort()
+	}
+	fmt.Println("--------")
+	ctx.Next()
+
+}
+
+func (h *Handler) Profile(ctx *gin.Context) {
+	// This is a protected route. Only accessible if the JWT token is valid.
+	ctx.JSON(http.StatusOK, gin.H{"message": "Welcome to the protected profile area!"})
 }

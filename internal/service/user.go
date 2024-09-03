@@ -16,13 +16,17 @@ import (
 type Token interface {
 	GenerateToken(ctx context.Context, userID string, duration time.Duration) (string, error)
 	ValidateToken(ctx context.Context, tokenString string) error
+
+	ParseToken(ctx context.Context, tokenStr string) (string, error)
 }
 
 type Repository interface {
 	UserExists(ctx context.Context, user entity.User) (bool, error)
 	CreateUser(ctx context.Context, user entity.User) error
 	UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error)
+	//redis methods below
 	StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error //store token in redis
+	ValidateTokenRedis(ctx context.Context, token string, userID string) error
 	// redis method for jwt token validation
 }
 
@@ -103,7 +107,7 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 	userIdStr := strconv.Itoa(userId.ID)
 	fmt.Println(userIdStr)
 	// generate token and return token
-	tokenStr, err := srv.token.GenerateToken(ctx, userIdStr, 24*time.Hour)
+	tokenStr, err := srv.token.GenerateToken(ctx, userIdStr, 24*time.Minute)
 
 	if err != nil {
 		return "", &errorpac.CustomErr{
@@ -113,7 +117,7 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 	}
 
 	// store token in redis
-	err = srv.repo.StoreTokenInRedis(ctx, userIdStr, tokenStr, 24*time.Hour)
+	err = srv.repo.StoreTokenInRedis(ctx, userIdStr, tokenStr, 2*time.Hour)
 	if err != nil {
 		return "", &errorpac.CustomErr{
 			OriginalErr: err,
@@ -123,4 +127,26 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 
 	return tokenStr, nil
 
+}
+
+func (srv *Service) VerifyToken(ctx context.Context, token string) (string, error) {
+	userId, err := srv.token.ParseToken(ctx, token)
+	if err != nil {
+		return "", err
+	}
+	err = srv.token.ValidateToken(ctx, token)
+	if err != nil {
+		return "", err
+	}
+	return userId, nil
+}
+
+// Next create protected routes for authenticated user access only
+
+func (srv *Service) CheckTokenInRedis(ctx context.Context, token string) error {
+	userId, err := srv.token.ParseToken(ctx, token)
+	if err != nil {
+		return err
+	}
+	return srv.repo.ValidateTokenRedis(ctx, token, userId)
 }

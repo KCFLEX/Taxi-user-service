@@ -145,3 +145,18 @@ func (repo *Repository) StoreTokenInRedis(ctx context.Context, userID string, to
 
 	return nil
 }
+
+func (repo *Repository) ValidateTokenRedis(ctx context.Context, token string, userID string) error {
+	storedToken, err := repo.redisDB.Get(ctx, "auth:"+userID).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return errors.New("token not found in Redis")
+		}
+		return err
+	}
+
+	if storedToken != token {
+		return errorpac.ErrInvaiidToken
+	}
+	return nil
+}
