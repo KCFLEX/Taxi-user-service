@@ -175,3 +175,50 @@ func TestSignIN(t *testing.T) {
 	}
 
 }
+
+func TestVerifyToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	newRepoMock := mockrepo.NewMockRepository(ctrl)
+	newTokenMock := mockrepo.NewMockToken(ctrl)
+
+	srv := New(newRepoMock, newTokenMock)
+
+	// successfull token verification
+	newTokenMock.EXPECT().ParseToken(gomock.Any(), "token").Return("2", nil)
+	newTokenMock.EXPECT().ValidateToken(gomock.Any(), "token").Return(nil)
+
+	userID, err := srv.VerifyToken(context.Background(), "token")
+	t.Log(userID)
+	expectedUserID := "2"
+	if expectedUserID != userID {
+		t.Errorf("expected: %v but got: %v", expectedUserID, userID)
+	}
+
+	if err != nil {
+		t.Errorf("expected no error but got err: %v", err)
+	}
+	// when the parsing of token fails
+	newTokenMock.EXPECT().ParseToken(gomock.Any(), "token").Return("", errorpac.ErrTokenParsingFail)
+
+	userID, err = srv.VerifyToken(context.Background(), "token")
+	t.Log(userID)
+	expectedUserID = ""
+	expectedErr := errorpac.ErrTokenParsingFail
+	if expectedUserID != userID {
+		t.Errorf("expected: %v but got: %v", expectedUserID, userID)
+	}
+
+	if expectedErr.Error() != err.Error() {
+		t.Errorf("expected: %v but got: %v", expectedErr.Error(), err.Error())
+	}
+	// when token vaildation fails
+	newTokenMock.EXPECT().ParseToken(gomock.Any(), "token").Return("2", nil)
+	newTokenMock.EXPECT().ValidateToken(gomock.Any(), "token").Return(errorpac.ErrInvaiidToken)
+
+	_, err = srv.VerifyToken(context.Background(), "token")
+	expectedErr = errorpac.ErrInvaiidToken
+	if expectedErr.Error() != err.Error() {
+		t.Errorf("expected: %v but got: %v", expectedErr.Error(), err.Error())
+	}
+}

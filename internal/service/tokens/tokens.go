@@ -53,7 +53,10 @@ func (t *Token) ValidateToken(ctx context.Context, tokenString string) error {
 
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrTokenParsingFail,
+		}
 	}
 
 	if !token.Valid {
@@ -69,7 +72,10 @@ func (t *Token) ParseToken(ctx context.Context, tokenStr string) (string, error)
 	})
 
 	if err != nil {
-		return "", err
+		return "", &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrTokenParsingFail,
+		}
 	}
 
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
