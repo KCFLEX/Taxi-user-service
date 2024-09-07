@@ -222,3 +222,44 @@ func TestVerifyToken(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", expectedErr.Error(), err.Error())
 	}
 }
+
+func TestCheckTokenInRedis(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	newRepoMock := mockrepo.NewMockRepository(ctrl)
+	newTokenMock := mockrepo.NewMockToken(ctrl)
+
+	srv := New(newRepoMock, newTokenMock)
+
+	// successful token check
+	newTokenMock.EXPECT().ParseToken(gomock.Any(), "token").Return("2", nil)
+	newRepoMock.EXPECT().ValidateTokenRedis(gomock.Any(), "token", "2").Return(nil)
+
+	err := srv.CheckTokenInRedis(context.Background(), "token")
+
+	if err != nil {
+		t.Errorf("expected no error but got err: %v", err)
+	}
+
+	// when the parsing of token fails
+	newTokenMock.EXPECT().ParseToken(gomock.Any(), "token").Return("", errorpac.ErrTokenParsingFail)
+
+	err = srv.CheckTokenInRedis(context.Background(), "token")
+
+	expectedErr := errorpac.ErrTokenParsingFail
+	if expectedErr.Error() != err.Error() {
+		t.Errorf("expected: %v but got: %v", expectedErr.Error(), err.Error())
+	}
+
+	// when token validation fails
+	newTokenMock.EXPECT().ParseToken(gomock.Any(), "token").Return("2", nil)
+	newRepoMock.EXPECT().ValidateTokenRedis(gomock.Any(), "token", "2").Return(errorpac.ErrInvaiidToken)
+
+	err = srv.CheckTokenInRedis(context.Background(), "token")
+
+	expectedErr = errorpac.ErrInvaiidToken
+	if expectedErr.Error() != err.Error() {
+		t.Errorf("expected: %v but got: %v", expectedErr.Error(), err.Error())
+	}
+
+}
