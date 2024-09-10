@@ -112,8 +112,8 @@ func (repo *Repository) CreateUser(ctx context.Context, user entity.User) error 
 	return nil
 }
 
-// method to check if user email exists
-// if it does return password
+// method to check if user phone number exists
+// if it does return password and id
 func (repo *Repository) UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error) {
 	query := `SELECT password, id FROM users WHERE phone = $1`
 
