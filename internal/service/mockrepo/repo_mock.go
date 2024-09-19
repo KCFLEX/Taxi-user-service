@@ -117,6 +117,35 @@ func (mr *MockRepositoryMockRecorder) CreateUser(ctx, user interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockRepository)(nil).CreateUser), ctx, user)
 }
 
+// DeleteProfileByID mocks base method.
+func (m *MockRepository) DeleteProfileByID(ctx context.Context, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteProfileByID", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteProfileByID indicates an expected call of DeleteProfileByID.
+func (mr *MockRepositoryMockRecorder) DeleteProfileByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProfileByID", reflect.TypeOf((*MockRepository)(nil).DeleteProfileByID), ctx, id)
+}
+
+// GetProfileByID mocks base method.
+func (m *MockRepository) GetProfileByID(ctx context.Context, id int) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileByID", ctx, id)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileByID indicates an expected call of GetProfileByID.
+func (mr *MockRepositoryMockRecorder) GetProfileByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileByID", reflect.TypeOf((*MockRepository)(nil).GetProfileByID), ctx, id)
+}
+
 // StoreTokenInRedis mocks base method.
 func (m *MockRepository) StoreTokenInRedis(ctx context.Context, userID, token string, expiration time.Duration) error {
 	m.ctrl.T.Helper()
@@ -129,6 +158,20 @@ func (m *MockRepository) StoreTokenInRedis(ctx context.Context, userID, token st
 func (mr *MockRepositoryMockRecorder) StoreTokenInRedis(ctx, userID, token, expiration interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreTokenInRedis", reflect.TypeOf((*MockRepository)(nil).StoreTokenInRedis), ctx, userID, token, expiration)
+}
+
+// UpdateProfileByID mocks base method.
+func (m *MockRepository) UpdateProfileByID(ctx context.Context, updateInfo entity.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateProfileByID", ctx, updateInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateProfileByID indicates an expected call of UpdateProfileByID.
+func (mr *MockRepositoryMockRecorder) UpdateProfileByID(ctx, updateInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProfileByID", reflect.TypeOf((*MockRepository)(nil).UpdateProfileByID), ctx, updateInfo)
 }
 
 // UserExists mocks base method.

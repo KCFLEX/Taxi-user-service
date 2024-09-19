@@ -24,6 +24,9 @@ type Repository interface {
 	UserExists(ctx context.Context, user entity.User) (bool, error)
 	CreateUser(ctx context.Context, user entity.User) error
 	UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error)
+	GetProfileByID(ctx context.Context, id int) (entity.User, error)
+	DeleteProfileByID(ctx context.Context, id int) error
+	UpdateProfileByID(ctx context.Context, updateInfo entity.User) error
 	//redis methods below
 	StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error //store token in redis
 	ValidateTokenRedis(ctx context.Context, token string, userID string) error
@@ -44,7 +47,7 @@ func New(repo Repository, token Token) *Service {
 }
 
 func (srv *Service) SignUP(ctx context.Context, User models.UserInfo) error {
-	// next we do sessions and tokens
+
 	err := User.Required()
 	if err != nil {
 		return err
@@ -99,6 +102,10 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 		return "", err
 	}
 
+	if userId.DeletedAt != nil {
+		return "", errorpac.ErrUserDeleted
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(userId.Password), []byte(user.Password))
 	if err != nil {
 		return "", errorpac.ErrPasswordInvalid
@@ -107,7 +114,7 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 	userIdStr := strconv.Itoa(userId.ID)
 	fmt.Println(userIdStr)
 	// generate token and return token
-	tokenStr, err := srv.token.GenerateToken(ctx, userIdStr, 24*time.Minute)
+	tokenStr, err := srv.token.GenerateToken(ctx, userIdStr, 5*time.Hour)
 
 	if err != nil {
 		return "", &errorpac.CustomErr{
@@ -117,7 +124,7 @@ func (srv *Service) SignIN(ctx context.Context, user models.UserInfo) (string, e
 	}
 
 	// store token in redis
-	err = srv.repo.StoreTokenInRedis(ctx, userIdStr, tokenStr, 2*time.Hour)
+	err = srv.repo.StoreTokenInRedis(ctx, userIdStr, tokenStr, 5*time.Hour)
 	if err != nil {
 		return "", &errorpac.CustomErr{
 			OriginalErr: err,
@@ -141,12 +148,57 @@ func (srv *Service) VerifyToken(ctx context.Context, token string) (string, erro
 	return userId, nil
 }
 
-// Next create protected routes for authenticated user access only
-
 func (srv *Service) CheckTokenInRedis(ctx context.Context, token string) error {
 	userId, err := srv.token.ParseToken(ctx, token)
 	if err != nil {
 		return err
 	}
 	return srv.repo.ValidateTokenRedis(ctx, token, userId)
+}
+
+func (srv *Service) GetUserProfile(ctx context.Context, userID int) (models.UserInfo, error) {
+	user, err := srv.repo.GetProfileByID(ctx, userID)
+
+	if err != nil {
+		return models.UserInfo{}, err
+	}
+
+	newUserInfo := models.UserInfo{
+		Name:    user.Name,
+		PhoneNO: user.Phone,
+		Email:   user.Email,
+		Rating:  user.Rating,
+	}
+
+	return newUserInfo, nil
+
+}
+
+func (srv *Service) DeleteUserProfile(ctx context.Context, userID int) error {
+	err := srv.repo.DeleteProfileByID(ctx, userID)
+	if err != nil {
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrDeleteFail,
+		}
+	}
+
+	return nil
+}
+
+func (srv *Service) UpdateUserProfile(ctx context.Context, userID int, updateInfo models.UserInfo) error {
+	newInfo := entity.User{
+		ID:       userID,
+		Name:     updateInfo.Name,
+		Phone:    updateInfo.PhoneNO,
+		Email:    updateInfo.Email,
+		Password: updateInfo.Password,
+	}
+
+	err := srv.repo.UpdateProfileByID(ctx, newInfo)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -115,12 +115,11 @@ func (repo *Repository) CreateUser(ctx context.Context, user entity.User) error 
 // method to check if user phone number exists
 // if it does return password and id
 func (repo *Repository) UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error) {
-	query := `SELECT password, id FROM users WHERE phone = $1`
+	query := `SELECT password, id, deleted_at FROM users WHERE phone = $1`
 
-	var id int
-	var password string
+	var UserExists entity.User
 
-	err := repo.db.QueryRowContext(ctx, query, user.Phone).Scan(&password, &id)
+	err := repo.db.QueryRowContext(ctx, query, user.Phone).Scan(&UserExists.Password, &UserExists.ID, &UserExists.DeletedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return entity.User{}, &errorpac.CustomErr{
@@ -130,10 +129,7 @@ func (repo *Repository) UserPhoneExists(ctx context.Context, user entity.User) (
 		}
 	}
 
-	return entity.User{
-		ID:       id,
-		Password: password,
-	}, nil
+	return UserExists, nil
 }
 
 func (repo *Repository) StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error {
@@ -159,4 +155,75 @@ func (repo *Repository) ValidateTokenRedis(ctx context.Context, token string, us
 		return errorpac.ErrInvaiidToken
 	}
 	return nil
+}
+
+func (repo *Repository) GetProfileByID(ctx context.Context, id int) (entity.User, error) {
+	query := `SELECT name, phone, email, rating  FROM users WHERE id = $1`
+
+	var userProfile entity.User
+
+	err := repo.db.QueryRowContext(ctx, query, id).Scan(&userProfile.Name, &userProfile.Phone, &userProfile.Email, userProfile.Rating)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return entity.User{}, &errorpac.CustomErr{
+				OriginalErr: err,
+				SpecificErr: errorpac.ErrUserDoesNotExist,
+			}
+		}
+	}
+
+	return userProfile, nil
+}
+
+func (repo *Repository) DeleteProfileByID(ctx context.Context, id int) error {
+	query := `UPDATE users SET deleted_at = NOW() WHERE id = $1`
+
+	result, err := repo.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrUserDoesNotExist,
+		}
+	}
+
+	return nil
+
+}
+
+func (repo *Repository) UpdateProfileByID(ctx context.Context, updateInfo entity.User) error {
+	query := `UPDATE users SET name = $1, email = $2, phone = $3 WHERE id = $4`
+
+	result, err := repo.db.ExecContext(ctx, query, updateInfo.Name, updateInfo.Email, updateInfo.Phone, updateInfo.ID)
+	if err != nil {
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errors.New("failed to update query"),
+		}
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrUserDoesNotExist,
+		}
+	}
+
+	return nil
+
 }

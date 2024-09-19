@@ -19,6 +19,9 @@ var (
 	ErrTokenGenFail      = errors.New("token generation failed")
 	ErrInvaiidToken      = errors.New("invalid token")
 	ErrFailToStoreToken  = errors.New("failed to store token in redis")
+	ErrTokenParsingFail  = errors.New("failed to parse token")
+	ErrDeleteFail        = errors.New("profile deletion failed")
+	ErrUserDeleted       = errors.New("this user has been deleted")
 )
 
 type CustomErr struct {

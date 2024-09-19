@@ -49,6 +49,35 @@ func (mr *MockServiceMockRecorder) CheckTokenInRedis(ctx, token interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckTokenInRedis", reflect.TypeOf((*MockService)(nil).CheckTokenInRedis), ctx, token)
 }
 
+// DeleteUserProfile mocks base method.
+func (m *MockService) DeleteUserProfile(ctx context.Context, userID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserProfile", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserProfile indicates an expected call of DeleteUserProfile.
+func (mr *MockServiceMockRecorder) DeleteUserProfile(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserProfile", reflect.TypeOf((*MockService)(nil).DeleteUserProfile), ctx, userID)
+}
+
+// GetUserProfile mocks base method.
+func (m *MockService) GetUserProfile(ctx context.Context, userID int) (models.UserInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserProfile", ctx, userID)
+	ret0, _ := ret[0].(models.UserInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserProfile indicates an expected call of GetUserProfile.
+func (mr *MockServiceMockRecorder) GetUserProfile(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserProfile", reflect.TypeOf((*MockService)(nil).GetUserProfile), ctx, userID)
+}
+
 // SignIN mocks base method.
 func (m *MockService) SignIN(ctx context.Context, user models.UserInfo) (string, error) {
 	m.ctrl.T.Helper()
@@ -76,6 +105,20 @@ func (m *MockService) SignUP(ctx context.Context, User models.UserInfo) error {
 func (mr *MockServiceMockRecorder) SignUP(ctx, User interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUP", reflect.TypeOf((*MockService)(nil).SignUP), ctx, User)
+}
+
+// UpdateUserProfile mocks base method.
+func (m *MockService) UpdateUserProfile(ctx context.Context, userID int, updateInfo models.UserInfo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserProfile", ctx, userID, updateInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserProfile indicates an expected call of UpdateUserProfile.
+func (mr *MockServiceMockRecorder) UpdateUserProfile(ctx, userID, updateInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProfile", reflect.TypeOf((*MockService)(nil).UpdateUserProfile), ctx, userID, updateInfo)
 }
 
 // VerifyToken mocks base method.

@@ -14,10 +14,18 @@ var (
 )
 
 type UserInfo struct {
-	Name     string `json:"name"`
-	PhoneNO  string `json:"phone"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name     string  `json:"name"`
+	PhoneNO  string  `json:"phone"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Rating   float64 `json:"rating"`
+}
+
+type OrderInfo struct {
+	UserID   string `json:"userid"`
+	TaxiType string `json:"taxitype"`
+	From     string `json:"from"`
+	To       string `json:"to"`
 }
 
 func (s *UserInfo) Validate() error {

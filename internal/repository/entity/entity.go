@@ -13,3 +13,18 @@ type User struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 }
+
+type Driver struct {
+	ID     int
+	Status string // Driver's status ("free", "busy")
+}
+
+type TaxiOrder struct {
+	UserID    int
+	TaxiType  string
+	From      string
+	To        string
+	Status    string
+	DriverID  string
+	CreatedAt time.Time
+}

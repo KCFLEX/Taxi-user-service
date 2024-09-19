@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/KCFLEX/Taxi-user-service/errorpac"
 	"github.com/KCFLEX/Taxi-user-service/internal/config"
@@ -18,6 +19,9 @@ type Service interface {
 	SignIN(ctx context.Context, user models.UserInfo) (string, error)
 	VerifyToken(ctx context.Context, token string) (string, error)
 	CheckTokenInRedis(ctx context.Context, token string) error
+	GetUserProfile(ctx context.Context, userID int) (models.UserInfo, error)
+	DeleteUserProfile(ctx context.Context, userID int) error
+	UpdateUserProfile(ctx context.Context, userID int, updateInfo models.UserInfo) error
 }
 
 type Handler struct {
@@ -44,8 +48,12 @@ func (h *Handler) RegisterRoutes() {
 	h.router.Use(h.AuthMiddleWare)
 
 	// Now all routes defined after this line will be protected
+	h.router.POST("/order", h.OrderTaxi)
 	h.router.POST("/logout", h.LogOut)
-	h.router.GET("/profile", h.Profile) //
+	h.router.GET("/profile", h.GetProfile)
+	h.router.DELETE("/delete", h.DeleteProfile)
+	h.router.PATCH("/update", h.UpdateProfile)
+
 }
 
 func (h *Handler) Serve() error {
@@ -131,6 +139,7 @@ func (h *Handler) LogOut(ctx *gin.Context) {
 		Secure:   true,                 // Same Secure setting as the original cookie
 		SameSite: http.SameSiteLaxMode, // Same SameSite setting as the original cookie
 	}
+
 	fmt.Println("------logout")
 	http.SetCookie(ctx.Writer, cookie)
 
@@ -168,7 +177,117 @@ func (h *Handler) AuthMiddleWare(ctx *gin.Context) {
 
 }
 
-func (h *Handler) Profile(ctx *gin.Context) {
-	// This is a protected route. Only accessible if the JWT token is valid.
-	ctx.JSON(http.StatusOK, gin.H{"message": "Welcome to the protected profile area!"})
+func (h *Handler) GetProfile(ctx *gin.Context) {
+	tokenStr, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
+		return
+	}
+	fmt.Println("-------")
+	fmt.Print(tokenStr)
+
+	//verify token
+	userIDstr, err := h.srv.VerifyToken(ctx, tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
+		ctx.Abort()
+		return
+	}
+	userID, err := strconv.Atoi(userIDstr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	fmt.Println(userID)
+
+	profile, err := h.srv.GetUserProfile(ctx, userID)
+	if err != nil {
+		log.Printf("failed to get user profile: %v", err)
+		if errors.Is(err, errorpac.ErrUserDoesNotExist) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user profile"})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, profile)
+
+}
+
+func (h *Handler) DeleteProfile(ctx *gin.Context) {
+	tokenStr, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
+		return
+	}
+	fmt.Println("-------")
+	fmt.Print(tokenStr)
+
+	//verify token
+	userIDstr, err := h.srv.VerifyToken(ctx, tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
+		ctx.Abort()
+		return
+	}
+	userID, err := strconv.Atoi(userIDstr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	fmt.Println(userID)
+	err = h.srv.DeleteUserProfile(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "succeesfully deleted user profile"})
+
+}
+
+func (h *Handler) UpdateProfile(ctx *gin.Context) {
+	tokenStr, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
+		return
+	}
+	fmt.Println("-------")
+	fmt.Print(tokenStr)
+
+	//verify token
+	userIDstr, err := h.srv.VerifyToken(ctx, tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
+		ctx.Abort()
+		return
+	}
+	userID, err := strconv.Atoi(userIDstr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	fmt.Println(userID)
+
+	var userUpdate models.UserInfo
+
+	err = ctx.ShouldBind(&userUpdate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	}
+
+	err = h.srv.UpdateUserProfile(ctx, userID, userUpdate)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "profile successfully updated "})
+
 }
