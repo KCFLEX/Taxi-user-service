@@ -66,6 +66,7 @@ func (t *Token) ValidateToken(ctx context.Context, tokenString string) error {
 	return nil
 }
 
+// for parsing token and retrieving userinfo like userID
 func (t *Token) ParseToken(ctx context.Context, tokenStr string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(t.SecretKey), nil

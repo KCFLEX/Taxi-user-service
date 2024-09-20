@@ -160,7 +160,7 @@ func TestAuthMiddleWare(t *testing.T) {
 	ctx, _ := gin.CreateTestContext(rr)
 	ctx.Request = req
 	h.AuthMiddleWare(ctx)
-	h.Profile(ctx)
+	h.GetProfile(ctx)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 

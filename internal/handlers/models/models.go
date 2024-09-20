@@ -14,10 +14,41 @@ var (
 )
 
 type UserInfo struct {
-	Name     string `json:"name"`
-	PhoneNO  string `json:"phone"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name     string  `json:"name"`
+	PhoneNO  string  `json:"phone"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Rating   float64 `json:"rating"`
+}
+
+type GetUserInfo struct {
+	Name    string `json:"name"`
+	PhoneNO string `json:"phone"`
+	Email   string `json:"email"`
+
+	Rating float64 `json:"rating"`
+}
+
+type UpdateUserInfo struct {
+	Name    string `json:"name"`
+	PhoneNO string `json:"phone"`
+	Email   string `json:"email"`
+}
+
+type OrderInfo struct {
+	UserID   string `json:"userid"`
+	TaxiType string `json:"taxitype"`
+	From     string `json:"from"`
+	To       string `json:"to"`
+}
+
+type Phone struct {
+	PhoneNO string `json:"phone"`
+}
+
+type Wallet struct {
+	WalletType string  `json:"wallettype"`
+	Balance    float64 `json:"balance"`
 }
 
 func (s *UserInfo) Validate() error {
