@@ -27,6 +27,11 @@ type Repository interface {
 	GetProfileByID(ctx context.Context, id int) (entity.User, error)
 	DeleteProfileByID(ctx context.Context, id int) error
 	UpdateProfileByID(ctx context.Context, updateInfo entity.User) error
+	CreatePersonalWallet(ctx context.Context, walletInfo entity.Wallet) error
+	GetPersonalWalletBYID(ctx context.Context, userID int) (int, error)
+	AddFamilyWallet(ctx context.Context, walletInfo entity.Wallet) error
+	GetfamilyWalletByOwnerID(ctx context.Context, userID int, walletType string) (int, error)
+	AddUserToFamilyWallet(ctx context.Context, newMember entity.FamilyWalletMember) error
 	//redis methods below
 	StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error //store token in redis
 	ValidateTokenRedis(ctx context.Context, token string, userID string) error
@@ -156,14 +161,14 @@ func (srv *Service) CheckTokenInRedis(ctx context.Context, token string) error {
 	return srv.repo.ValidateTokenRedis(ctx, token, userId)
 }
 
-func (srv *Service) GetUserProfile(ctx context.Context, userID int) (models.UserInfo, error) {
+func (srv *Service) GetUserProfile(ctx context.Context, userID int) (models.GetUserInfo, error) {
 	user, err := srv.repo.GetProfileByID(ctx, userID)
 
 	if err != nil {
-		return models.UserInfo{}, err
+		return models.GetUserInfo{}, err
 	}
 
-	newUserInfo := models.UserInfo{
+	newUserInfo := models.GetUserInfo{
 		Name:    user.Name,
 		PhoneNO: user.Phone,
 		Email:   user.Email,

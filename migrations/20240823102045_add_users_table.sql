@@ -20,15 +20,22 @@ CREATE TABLE wallets (
     type wallet_type NOT NULL,
     balance DECIMAL(9,2) NOT NULL,
     main_owner_id INTEGER,
+    personal_wallet_id INTEGER, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
-    FOREIGN KEY (main_owner_id) REFERENCES users(id)
+    FOREIGN KEY (main_owner_id) REFERENCES users(id),
+    FOREIGN KEY (personal_wallet_id) REFERENCES wallets(id)
 );
 
-CREATE TABLE user_wallets (
-    user_id INTEGER,
-    wallet_id INTEGER,
+-- The many-to-many relationship created by the family_wallet_members table allows:
+-- Users to belong to multiple family wallets at the same time.
+-- Family wallets to have multiple users (members), making it a flexible system for managing shared wallets.
+CREATE TABLE family_wallet_members (
+    id SERIAL PRIMARY KEY,       -- Auto-incrementing unique ID for each row
+    user_id INTEGER,             -- Foreign key referencing users
+    wallet_id INTEGER,           -- Foreign key referencing wallets
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Track when the user was added
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (wallet_id) REFERENCES wallets(id)
 );
@@ -61,7 +68,7 @@ CREATE TABLE transactions (
 
 DROP TABLE transactions;
 DROP TABLE trips;
-DROP TABLE user_wallets;
+DROP TABLE family_wallet_members;
 DROP TABLE wallets;
 DROP TABLE users;
 DROP TYPE wallet_type;

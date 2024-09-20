@@ -19,9 +19,12 @@ type Service interface {
 	SignIN(ctx context.Context, user models.UserInfo) (string, error)
 	VerifyToken(ctx context.Context, token string) (string, error)
 	CheckTokenInRedis(ctx context.Context, token string) error
-	GetUserProfile(ctx context.Context, userID int) (models.UserInfo, error)
+	GetUserProfile(ctx context.Context, userID int) (models.GetUserInfo, error)
 	DeleteUserProfile(ctx context.Context, userID int) error
 	UpdateUserProfile(ctx context.Context, userID int, updateInfo models.UserInfo) error
+	AddPersonalWallet(ctx context.Context, userID int, walletInfo models.Wallet) error
+	AddFamilyWallet(ctx context.Context, userID int, walletInfo models.Wallet) error
+	AddUserToFamilyByPhone(ctx context.Context, userID int, phone models.Phone) error
 }
 
 type Handler struct {
@@ -53,6 +56,9 @@ func (h *Handler) RegisterRoutes() {
 	h.router.GET("/profile", h.GetProfile)
 	h.router.DELETE("/delete", h.DeleteProfile)
 	h.router.PATCH("/update", h.UpdateProfile)
+	h.router.POST("/wallet", h.AddNewWallet)
+	h.router.POST("/family", h.AddfamilyWallet)
+	h.router.POST("/wallet/member", h.AddUserToFamilyWallet)
 
 }
 
@@ -95,6 +101,7 @@ func (h *Handler) SignIN(ctx *gin.Context) {
 	err := ctx.ShouldBind(&userCred)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
 
 	user := models.UserInfo{
@@ -153,7 +160,7 @@ func (h *Handler) AuthMiddleWare(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
 		return
 	}
-	fmt.Println("-------")
+
 	fmt.Print(tokenStr)
 
 	//verify token
@@ -165,14 +172,13 @@ func (h *Handler) AuthMiddleWare(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("-------")
 	err = h.srv.CheckTokenInRedis(ctx, tokenStr)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		ctx.Abort()
 	}
-	fmt.Println("--------")
+
 	ctx.Next()
 
 }
@@ -257,8 +263,6 @@ func (h *Handler) UpdateProfile(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
 		return
 	}
-	fmt.Println("-------")
-	fmt.Print(tokenStr)
 
 	//verify token
 	userIDstr, err := h.srv.VerifyToken(ctx, tokenStr)
@@ -274,13 +278,12 @@ func (h *Handler) UpdateProfile(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(userID)
-
 	var userUpdate models.UserInfo
 
 	err = ctx.ShouldBind(&userUpdate)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
 
 	err = h.srv.UpdateUserProfile(ctx, userID, userUpdate)
