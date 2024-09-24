@@ -80,6 +80,262 @@ func (mr *MockTokenMockRecorder) ValidateToken(ctx, tokenString interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateToken", reflect.TypeOf((*MockToken)(nil).ValidateToken), ctx, tokenString)
 }
 
+// MockUserRepository is a mock of UserRepository interface.
+type MockUserRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockUserRepositoryMockRecorder
+}
+
+// MockUserRepositoryMockRecorder is the mock recorder for MockUserRepository.
+type MockUserRepositoryMockRecorder struct {
+	mock *MockUserRepository
+}
+
+// NewMockUserRepository creates a new mock instance.
+func NewMockUserRepository(ctrl *gomock.Controller) *MockUserRepository {
+	mock := &MockUserRepository{ctrl: ctrl}
+	mock.recorder = &MockUserRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
+	return m.recorder
+}
+
+// CreateUser mocks base method.
+func (m *MockUserRepository) CreateUser(ctx context.Context, user entity.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockUserRepositoryMockRecorder) CreateUser(ctx, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserRepository)(nil).CreateUser), ctx, user)
+}
+
+// DeleteProfileByID mocks base method.
+func (m *MockUserRepository) DeleteProfileByID(ctx context.Context, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteProfileByID", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteProfileByID indicates an expected call of DeleteProfileByID.
+func (mr *MockUserRepositoryMockRecorder) DeleteProfileByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProfileByID", reflect.TypeOf((*MockUserRepository)(nil).DeleteProfileByID), ctx, id)
+}
+
+// GetProfileByID mocks base method.
+func (m *MockUserRepository) GetProfileByID(ctx context.Context, id int) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileByID", ctx, id)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileByID indicates an expected call of GetProfileByID.
+func (mr *MockUserRepositoryMockRecorder) GetProfileByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileByID", reflect.TypeOf((*MockUserRepository)(nil).GetProfileByID), ctx, id)
+}
+
+// UpdateProfileByID mocks base method.
+func (m *MockUserRepository) UpdateProfileByID(ctx context.Context, updateInfo entity.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateProfileByID", ctx, updateInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateProfileByID indicates an expected call of UpdateProfileByID.
+func (mr *MockUserRepositoryMockRecorder) UpdateProfileByID(ctx, updateInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProfileByID", reflect.TypeOf((*MockUserRepository)(nil).UpdateProfileByID), ctx, updateInfo)
+}
+
+// UserExists mocks base method.
+func (m *MockUserRepository) UserExists(ctx context.Context, user entity.User) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserExists", ctx, user)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserExists indicates an expected call of UserExists.
+func (mr *MockUserRepositoryMockRecorder) UserExists(ctx, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserExists", reflect.TypeOf((*MockUserRepository)(nil).UserExists), ctx, user)
+}
+
+// UserPhoneExists mocks base method.
+func (m *MockUserRepository) UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserPhoneExists", ctx, user)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserPhoneExists indicates an expected call of UserPhoneExists.
+func (mr *MockUserRepositoryMockRecorder) UserPhoneExists(ctx, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserPhoneExists", reflect.TypeOf((*MockUserRepository)(nil).UserPhoneExists), ctx, user)
+}
+
+// MockWalletRepository is a mock of WalletRepository interface.
+type MockWalletRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockWalletRepositoryMockRecorder
+}
+
+// MockWalletRepositoryMockRecorder is the mock recorder for MockWalletRepository.
+type MockWalletRepositoryMockRecorder struct {
+	mock *MockWalletRepository
+}
+
+// NewMockWalletRepository creates a new mock instance.
+func NewMockWalletRepository(ctrl *gomock.Controller) *MockWalletRepository {
+	mock := &MockWalletRepository{ctrl: ctrl}
+	mock.recorder = &MockWalletRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockWalletRepository) EXPECT() *MockWalletRepositoryMockRecorder {
+	return m.recorder
+}
+
+// AddFamilyWallet mocks base method.
+func (m *MockWalletRepository) AddFamilyWallet(ctx context.Context, walletInfo entity.Wallet) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFamilyWallet", ctx, walletInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFamilyWallet indicates an expected call of AddFamilyWallet.
+func (mr *MockWalletRepositoryMockRecorder) AddFamilyWallet(ctx, walletInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFamilyWallet", reflect.TypeOf((*MockWalletRepository)(nil).AddFamilyWallet), ctx, walletInfo)
+}
+
+// AddUserToFamilyWallet mocks base method.
+func (m *MockWalletRepository) AddUserToFamilyWallet(ctx context.Context, newMember entity.FamilyWalletMember) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddUserToFamilyWallet", ctx, newMember)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddUserToFamilyWallet indicates an expected call of AddUserToFamilyWallet.
+func (mr *MockWalletRepositoryMockRecorder) AddUserToFamilyWallet(ctx, newMember interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToFamilyWallet", reflect.TypeOf((*MockWalletRepository)(nil).AddUserToFamilyWallet), ctx, newMember)
+}
+
+// CreatePersonalWallet mocks base method.
+func (m *MockWalletRepository) CreatePersonalWallet(ctx context.Context, walletInfo entity.Wallet) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePersonalWallet", ctx, walletInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreatePersonalWallet indicates an expected call of CreatePersonalWallet.
+func (mr *MockWalletRepositoryMockRecorder) CreatePersonalWallet(ctx, walletInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePersonalWallet", reflect.TypeOf((*MockWalletRepository)(nil).CreatePersonalWallet), ctx, walletInfo)
+}
+
+// GetFamilyWalletByOwnerID mocks base method.
+func (m *MockWalletRepository) GetFamilyWalletByOwnerID(ctx context.Context, userID int, walletType string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFamilyWalletByOwnerID", ctx, userID, walletType)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFamilyWalletByOwnerID indicates an expected call of GetFamilyWalletByOwnerID.
+func (mr *MockWalletRepositoryMockRecorder) GetFamilyWalletByOwnerID(ctx, userID, walletType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFamilyWalletByOwnerID", reflect.TypeOf((*MockWalletRepository)(nil).GetFamilyWalletByOwnerID), ctx, userID, walletType)
+}
+
+// GetPersonalWalletBYID mocks base method.
+func (m *MockWalletRepository) GetPersonalWalletBYID(ctx context.Context, userID int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPersonalWalletBYID", ctx, userID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPersonalWalletBYID indicates an expected call of GetPersonalWalletBYID.
+func (mr *MockWalletRepositoryMockRecorder) GetPersonalWalletBYID(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPersonalWalletBYID", reflect.TypeOf((*MockWalletRepository)(nil).GetPersonalWalletBYID), ctx, userID)
+}
+
+// MockRedisRepository is a mock of RedisRepository interface.
+type MockRedisRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockRedisRepositoryMockRecorder
+}
+
+// MockRedisRepositoryMockRecorder is the mock recorder for MockRedisRepository.
+type MockRedisRepositoryMockRecorder struct {
+	mock *MockRedisRepository
+}
+
+// NewMockRedisRepository creates a new mock instance.
+func NewMockRedisRepository(ctrl *gomock.Controller) *MockRedisRepository {
+	mock := &MockRedisRepository{ctrl: ctrl}
+	mock.recorder = &MockRedisRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRedisRepository) EXPECT() *MockRedisRepositoryMockRecorder {
+	return m.recorder
+}
+
+// StoreTokenInRedis mocks base method.
+func (m *MockRedisRepository) StoreTokenInRedis(ctx context.Context, userID, token string, expiration time.Duration) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StoreTokenInRedis", ctx, userID, token, expiration)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// StoreTokenInRedis indicates an expected call of StoreTokenInRedis.
+func (mr *MockRedisRepositoryMockRecorder) StoreTokenInRedis(ctx, userID, token, expiration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreTokenInRedis", reflect.TypeOf((*MockRedisRepository)(nil).StoreTokenInRedis), ctx, userID, token, expiration)
+}
+
+// ValidateTokenRedis mocks base method.
+func (m *MockRedisRepository) ValidateTokenRedis(ctx context.Context, token, userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateTokenRedis", ctx, token, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ValidateTokenRedis indicates an expected call of ValidateTokenRedis.
+func (mr *MockRedisRepositoryMockRecorder) ValidateTokenRedis(ctx, token, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateTokenRedis", reflect.TypeOf((*MockRedisRepository)(nil).ValidateTokenRedis), ctx, token, userID)
+}
+
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -101,6 +357,48 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// AddFamilyWallet mocks base method.
+func (m *MockRepository) AddFamilyWallet(ctx context.Context, walletInfo entity.Wallet) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFamilyWallet", ctx, walletInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFamilyWallet indicates an expected call of AddFamilyWallet.
+func (mr *MockRepositoryMockRecorder) AddFamilyWallet(ctx, walletInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFamilyWallet", reflect.TypeOf((*MockRepository)(nil).AddFamilyWallet), ctx, walletInfo)
+}
+
+// AddUserToFamilyWallet mocks base method.
+func (m *MockRepository) AddUserToFamilyWallet(ctx context.Context, newMember entity.FamilyWalletMember) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddUserToFamilyWallet", ctx, newMember)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddUserToFamilyWallet indicates an expected call of AddUserToFamilyWallet.
+func (mr *MockRepositoryMockRecorder) AddUserToFamilyWallet(ctx, newMember interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToFamilyWallet", reflect.TypeOf((*MockRepository)(nil).AddUserToFamilyWallet), ctx, newMember)
+}
+
+// CreatePersonalWallet mocks base method.
+func (m *MockRepository) CreatePersonalWallet(ctx context.Context, walletInfo entity.Wallet) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePersonalWallet", ctx, walletInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreatePersonalWallet indicates an expected call of CreatePersonalWallet.
+func (mr *MockRepositoryMockRecorder) CreatePersonalWallet(ctx, walletInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePersonalWallet", reflect.TypeOf((*MockRepository)(nil).CreatePersonalWallet), ctx, walletInfo)
 }
 
 // CreateUser mocks base method.
@@ -129,6 +427,36 @@ func (m *MockRepository) DeleteProfileByID(ctx context.Context, id int) error {
 func (mr *MockRepositoryMockRecorder) DeleteProfileByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProfileByID", reflect.TypeOf((*MockRepository)(nil).DeleteProfileByID), ctx, id)
+}
+
+// GetFamilyWalletByOwnerID mocks base method.
+func (m *MockRepository) GetFamilyWalletByOwnerID(ctx context.Context, userID int, walletType string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFamilyWalletByOwnerID", ctx, userID, walletType)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFamilyWalletByOwnerID indicates an expected call of GetFamilyWalletByOwnerID.
+func (mr *MockRepositoryMockRecorder) GetFamilyWalletByOwnerID(ctx, userID, walletType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFamilyWalletByOwnerID", reflect.TypeOf((*MockRepository)(nil).GetFamilyWalletByOwnerID), ctx, userID, walletType)
+}
+
+// GetPersonalWalletBYID mocks base method.
+func (m *MockRepository) GetPersonalWalletBYID(ctx context.Context, userID int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPersonalWalletBYID", ctx, userID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPersonalWalletBYID indicates an expected call of GetPersonalWalletBYID.
+func (mr *MockRepositoryMockRecorder) GetPersonalWalletBYID(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPersonalWalletBYID", reflect.TypeOf((*MockRepository)(nil).GetPersonalWalletBYID), ctx, userID)
 }
 
 // GetProfileByID mocks base method.

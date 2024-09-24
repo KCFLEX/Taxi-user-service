@@ -61,14 +61,14 @@ func (srv *Service) AddUserToFamilyByPhone(ctx context.Context, userID int, phon
 	checkPhone := entity.User{
 		Phone: phone.PhoneNO,
 	}
-
-	getUser, err := srv.repo.UserPhoneExists(ctx, checkPhone)
+	// if the user exist we retrieve the user phone number inorder to add the user to the family wallet
+	newMember, err := srv.repo.UserPhoneExists(ctx, checkPhone)
 	if err != nil {
 		return err
 	}
 
 	// retrieving wallet id
-	getWalletID, err := srv.repo.GetfamilyWalletByOwnerID(ctx, userID, "family")
+	getWalletID, err := srv.repo.GetFamilyWalletByOwnerID(ctx, userID, "family")
 	if err != nil {
 		return &errorpac.CustomErr{
 			OriginalErr: err,
@@ -78,7 +78,7 @@ func (srv *Service) AddUserToFamilyByPhone(ctx context.Context, userID int, phon
 
 	// now we add a member to the family wallet
 	newFamilyMember := entity.FamilyWalletMember{
-		UserID:   getUser.ID,
+		UserID:   newMember.ID,
 		WalletID: getWalletID,
 	}
 
@@ -92,4 +92,41 @@ func (srv *Service) AddUserToFamilyByPhone(ctx context.Context, userID int, phon
 
 	return nil
 
+}
+
+func (srv *Service) GetAllUserWallets(ctx context.Context, userID int) ([]models.UserWallet, error) {
+	userWallets, err := srv.repo.GetAllUserWallets(ctx, userID)
+	if err != nil {
+		return []models.UserWallet{}, &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errors.New("failed to retrieve user wallets"),
+		}
+	}
+	var newUserWallets []models.UserWallet
+	for _, wallet := range userWallets {
+		newWallet := models.UserWallet{
+			ID:         wallet.ID,
+			WalletType: wallet.WalletType,
+			Balance:    wallet.Balance,
+		}
+
+		newUserWallets = append(newUserWallets, newWallet)
+	}
+
+	return newUserWallets, nil
+}
+
+func (srv *Service) WithdrawFromWallet(ctx context.Context, withdrawal models.UserWitdraw) error {
+	walletID := withdrawal.WalletID
+	amount := withdrawal.Amount
+
+	err := srv.repo.DeductAmountFromWallet(ctx, walletID, amount)
+	if err != nil {
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errors.New("failed to deduct money from wallet"),
+		}
+	}
+
+	return nil
 }
