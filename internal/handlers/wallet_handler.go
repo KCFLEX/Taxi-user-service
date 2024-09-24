@@ -128,3 +128,54 @@ func (h *Handler) AddUserToFamilyWallet(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "new member has been succesfully added to the family wallet"})
 
 }
+
+func (h *Handler) GetAllUserWallets(ctx *gin.Context) {
+	tokenStr, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "missing authorization header"})
+		return
+	}
+
+	//verify token
+	userIDstr, err := h.srv.VerifyToken(ctx, tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
+		ctx.Abort()
+		return
+	}
+	userID, err := strconv.Atoi(userIDstr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	fmt.Println(userID)
+	//  service for retrieving user wallets
+	userWallets, err := h.srv.GetAllUserWallets(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, userWallets)
+
+}
+
+func (h *Handler) WithdrawFromWallet(ctx *gin.Context) {
+
+	var withdrawal models.UserWitdraw
+
+	err := ctx.ShouldBind(&withdrawal)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = h.srv.WithdrawFromWallet(ctx, withdrawal)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "amount successfully deducted"})
+}

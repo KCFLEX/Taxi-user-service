@@ -25,6 +25,8 @@ type Service interface {
 	AddPersonalWallet(ctx context.Context, userID int, walletInfo models.Wallet) error
 	AddFamilyWallet(ctx context.Context, userID int, walletInfo models.Wallet) error
 	AddUserToFamilyByPhone(ctx context.Context, userID int, phone models.Phone) error
+	GetAllUserWallets(ctx context.Context, userID int) ([]models.UserWallet, error)
+	WithdrawFromWallet(ctx context.Context, withdrawal models.UserWitdraw) error
 }
 
 type Handler struct {
@@ -59,6 +61,8 @@ func (h *Handler) RegisterRoutes() {
 	h.router.POST("/wallet", h.AddNewWallet)
 	h.router.POST("/family", h.AddfamilyWallet)
 	h.router.POST("/wallet/member", h.AddUserToFamilyWallet)
+	h.router.GET("/wallet/all", h.GetAllUserWallets)
+	h.router.POST("/wallet/withdraw", h.WithdrawFromWallet)
 
 }
 

@@ -20,22 +20,37 @@ type Token interface {
 	ParseToken(ctx context.Context, tokenStr string) (string, error)
 }
 
-type Repository interface {
+type UserRepository interface {
 	UserExists(ctx context.Context, user entity.User) (bool, error)
 	CreateUser(ctx context.Context, user entity.User) error
 	UserPhoneExists(ctx context.Context, user entity.User) (entity.User, error)
 	GetProfileByID(ctx context.Context, id int) (entity.User, error)
 	DeleteProfileByID(ctx context.Context, id int) error
 	UpdateProfileByID(ctx context.Context, updateInfo entity.User) error
+}
+
+// Interface for Wallet-related operations
+type WalletRepository interface {
 	CreatePersonalWallet(ctx context.Context, walletInfo entity.Wallet) error
 	GetPersonalWalletBYID(ctx context.Context, userID int) (int, error)
 	AddFamilyWallet(ctx context.Context, walletInfo entity.Wallet) error
-	GetfamilyWalletByOwnerID(ctx context.Context, userID int, walletType string) (int, error)
+	GetFamilyWalletByOwnerID(ctx context.Context, userID int, walletType string) (int, error)
 	AddUserToFamilyWallet(ctx context.Context, newMember entity.FamilyWalletMember) error
-	//redis methods below
-	StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error //store token in redis
+	GetAllUserWallets(ctx context.Context, userID int) ([]entity.Wallet, error)
+	DeductAmountFromWallet(ctx context.Context, walletID, amount int) error
+}
+
+// Interface for Redis-related operations
+type RedisRepository interface {
+	StoreTokenInRedis(ctx context.Context, userID string, token string, expiration time.Duration) error
 	ValidateTokenRedis(ctx context.Context, token string, userID string) error
-	// redis method for jwt token validation
+}
+
+// Repository interface that embeds the other interfaces
+type Repository interface {
+	UserRepository
+	WalletRepository
+	RedisRepository
 }
 
 // remember you were doing transformation transforming models.UserInfo to entity.User
