@@ -67,6 +67,11 @@ type UserWitdraw struct {
 	Amount   int `json:"amount"`
 }
 
+type UserDeposit struct {
+	WalletID int `json:"walletid"`
+	Amount   int `json:"amount"`
+}
+
 func (s *UserInfo) Validate() error {
 	if !emailRegex.MatchString(s.Email) {
 		return errorpac.ErrInvalidEmail

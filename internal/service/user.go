@@ -38,6 +38,8 @@ type WalletRepository interface {
 	AddUserToFamilyWallet(ctx context.Context, newMember entity.FamilyWalletMember) error
 	GetAllUserWallets(ctx context.Context, userID int) ([]entity.Wallet, error)
 	DeductAmountFromWallet(ctx context.Context, walletID, amount int) error
+	GetUserOwnedWallets(ctx context.Context, userID int) ([]entity.Wallet, error)
+	DepositIntoWallet(ctx context.Context, walletID int, amount int) error
 }
 
 // Interface for Redis-related operations

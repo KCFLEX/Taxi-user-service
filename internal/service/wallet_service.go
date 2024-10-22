@@ -99,7 +99,7 @@ func (srv *Service) GetAllUserWallets(ctx context.Context, userID int) ([]models
 	if err != nil {
 		return []models.UserWallet{}, &errorpac.CustomErr{
 			OriginalErr: err,
-			SpecificErr: errors.New("failed to retrieve user wallets"),
+			SpecificErr: errorpac.ErrRetrieveUserWalletsFAil,
 		}
 	}
 	var newUserWallets []models.UserWallet
@@ -128,5 +128,41 @@ func (srv *Service) WithdrawFromWallet(ctx context.Context, withdrawal models.Us
 		}
 	}
 
+	return nil
+}
+
+func (srv *Service) GetUserOwnedWallets(ctx context.Context, userID int) ([]models.UserWallet, error) {
+	ownedWallets, err := srv.repo.GetUserOwnedWallets(ctx, userID)
+	if err != nil {
+		return []models.UserWallet{}, &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errorpac.ErrRetrieveUserWalletsFAil,
+		}
+	}
+	var newOwnedWAllets []models.UserWallet
+	for _, wallet := range ownedWallets {
+		newWallet := models.UserWallet{
+			ID:         wallet.ID,
+			WalletType: wallet.WalletType,
+			Balance:    wallet.Balance,
+		}
+
+		newOwnedWAllets = append(newOwnedWAllets, newWallet)
+	}
+
+	return newOwnedWAllets, nil
+}
+
+func (srv *Service) DepositIntoWallet(ctx context.Context, depositInfo models.UserDeposit) error {
+	walletID := depositInfo.WalletID
+	amount := depositInfo.Amount
+
+	err := srv.repo.DepositIntoWallet(ctx, walletID, amount)
+	if err != nil {
+		return &errorpac.CustomErr{
+			OriginalErr: err,
+			SpecificErr: errors.New("failed to deposit amount in the wallet"),
+		}
+	}
 	return nil
 }

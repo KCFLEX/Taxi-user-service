@@ -119,3 +119,41 @@ func (repo *Repository) GetAllUserWallets(ctx context.Context, userID int) ([]en
 
 	return wallets, nil
 }
+
+func (repo *Repository) GetUserOwnedWallets(ctx context.Context, userID int) ([]entity.Wallet, error) {
+	query := `SELECT id, type, balance FROM wallets WHERE main_owner_id = $1`
+
+	rows, err := repo.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ownedWallets []entity.Wallet
+	for rows.Next() {
+		var wallet entity.Wallet
+		err := rows.Scan(&wallet.ID, &wallet.WalletType, &wallet.Balance)
+		if err != nil {
+			return []entity.Wallet{}, err
+		}
+		ownedWallets = append(ownedWallets, wallet)
+
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ownedWallets, nil
+}
+
+func (repo *Repository) DepositIntoWallet(ctx context.Context, walletID int, amount int) error {
+	query := `UPDATE wallets
+			  SET balance = balance + $1, updated_at = CURRENT_TIMESTAMP
+			  WHERE id = $2`
+
+	_, err := repo.db.ExecContext(ctx, query, amount, walletID)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
