@@ -10,6 +10,7 @@ import (
 	"github.com/KCFLEX/Taxi-user-service/internal/handlers/models"
 	"github.com/KCFLEX/Taxi-user-service/internal/repository/entity"
 	"github.com/KCFLEX/Taxi-user-service/internal/service/mockrepo"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"

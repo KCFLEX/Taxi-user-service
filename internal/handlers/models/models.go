@@ -46,9 +46,30 @@ type Phone struct {
 	PhoneNO string `json:"phone"`
 }
 
+type WithDrawInfo struct {
+	WalletType string `json:"wallettype"`
+	Amount     int    `json:"amount"`
+}
+
 type Wallet struct {
 	WalletType string  `json:"wallettype"`
 	Balance    float64 `json:"balance"`
+}
+
+type UserWallet struct {
+	ID         int     `json:"id"`
+	WalletType string  `json:"wallettype"`
+	Balance    float64 `json:"balance"`
+}
+
+type UserWitdraw struct {
+	WalletID int `json:"walletid"`
+	Amount   int `json:"amount"`
+}
+
+type UserDeposit struct {
+	WalletID int `json:"walletid"`
+	Amount   int `json:"amount"`
 }
 
 func (s *UserInfo) Validate() error {
